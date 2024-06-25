@@ -1,27 +1,16 @@
 <?php
 
 header("Content-type: application/json; charset=UTF-8");
-
 header("Access-Control-Allow-Origin: *");
-header('Access-Control-Allow-Credentials: true');
+header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Methods: *");
+header('Access-Control-Allow-Credentials: false');
 
 $uris = explode("/", $_SERVER["REQUEST_URI"]);
 
 $method = $_SERVER["REQUEST_METHOD"];
 
-$query = $_SERVER['QUERY_STRING'];
-
 $body =  file_get_contents('php://input');
-
-// if ($method == "GET") {
-//     echo $method;
-// } elseif ($method == "POST") {
-//     echo $method;
-// } elseif ($method == "PUT") {
-//     echo $method;
-// } elseif ($method == "DELETE") {
-//     echo $method;
-// }
 
 $host = "127.0.0.1";
 $user = "user";
@@ -36,34 +25,61 @@ try {
     echo $e;
 }
 
-$sth = $pdo->prepare('SELECT * FROM produtos');
+if ($method == "GET") {
 
-$sth->execute();
+    $sth = $pdo->prepare('SELECT * FROM usuarios');
 
-$result = $sth->fetchall();
+    $sth->execute();
 
-echo "[";
+    $result = $sth->fetchall();
 
-for ($i = 0; $i < count($result); $i++) {
+    echo "[";
 
+    for ($i = 0; $i < count($result); $i++) {
 
-    $myObjet = new stdClass();
+        $myObjet = new stdClass();
 
-    $myObjet->id = $result[$i][0];
-    $myObjet->codigo=$result[$i][1];
-    $myObjet->nome=$result[$i][2];
-    $myObjet->descricao=$result[$i][3];
-    $myObjet->imagem=$result[$i][4];
-    $myObjet->valor=$result[$i][5];
+        $myObjet->id = $result[$i][0];
+        $myObjet->roles = $result[$i][1];
+        $myObjet->nome = $result[$i][2];
+        $myObjet->senha = $result[$i][3];
+
+        $myJSON = json_encode($myObjet);
+
+        echo $myJSON;
+
+        if ($i != count($result) - 1) {
+            echo ",";
+        }
+    }
+
+    echo "]";
     
-    $myJSON = json_encode($myObjet);
+}elseif ($method == "POST") {
 
-    echo $myJSON;
+    $data = json_decode($body);
 
-    if($i != count($result)-1){
-        echo ",";
+    $sth = $pdo->prepare("SELECT * FROM usuarios WHERE nome='$data->nome' and senha='$data->senha';");
+
+    $sth->execute();
+
+    $result = $sth->fetchall();
+
+    // echo $result[0][2];
+    // echo $data->nome;
+
+    // echo $result[0][3];
+    // echo $data->senha;
+
+    if ($result[0][2] == $data->nome && $result[0][3] == $data->senha){
+
+        $cookie_name = "user";
+
+        $cookie_value = "$data->nome"; 
+    
+        setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 day
+
+        echo "sucesso";
     }
 
 }
-
-echo "]";
