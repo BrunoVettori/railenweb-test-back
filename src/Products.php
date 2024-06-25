@@ -3,6 +3,7 @@
 header("Content-type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Methods: *");
 header('Access-Control-Allow-Credentials: true');
 
 $uris = explode("/", $_SERVER["REQUEST_URI"]);
@@ -70,7 +71,16 @@ if ($method == "GET") {
     echo "sucesso";
 
 } elseif ($method == "PUT") {
-    echo $method;
+    $data = json_decode($body);
+
+    $sth = $pdo->prepare("UPDATE produtos SET codigo='$data->codigo', nome='$data->nome', descricao='$data->descricao', valor='$data->valor' WHERE id='$data->id' ;");
+
+    $sth->execute();
+
+    $result = $sth->fetchall();
+
+    echo "sucesso";
+
 } elseif ($method == "DELETE") {
 
     $data = json_decode($body);

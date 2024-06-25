@@ -1,10 +1,10 @@
 meta {
-  name: post
+  name: put
   type: http
-  seq: 3
+  seq: 5
 }
 
-post {
+put {
   url: http://localhost:3000/src/Products.php
   body: json
   auth: none
@@ -12,7 +12,8 @@ post {
 
 body:json {
   {
-    "codigo":"3", 
+    "id":"5",
+    "codigo":"5", 
     "nome":"peça3",
     "descricao":"peça 3", 
     "valor":"1231.123"
